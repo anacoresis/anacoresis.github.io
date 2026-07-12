@@ -1,0 +1,279 @@
+/* ============================================================
+   SHARED STYLESHEET — every page links to this one file.
+   Change something here and it updates across the whole site.
+   ============================================================ */
+
+/* Import the fonts (display + monospace for code) */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* --- Design tokens: change these to restyle the whole site --- */
+:root {
+  --ink: #000000;        /* page background */
+  --paper: #f5f5f5;      /* main text */
+  --ash: #8a8a8a;        /* muted / secondary text */
+  --line: #262626;       /* borders and dividers */
+  --panel: #0d0d0d;      /* code block background */
+  --max: 1600px;         /* max width of homepage */
+  --read: 760px;         /* max width of a writeup (comfortable reading) */
+}
+
+/* --- Reset a few browser defaults --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'Space Grotesk', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+a { color: inherit; text-decoration: none; }
+
+::selection { background: #ffffff; color: #000000; }
+
+/* ============================================================
+   HEADER  (shared by every page)
+   ============================================================ */
+.site-header {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+@media (min-width: 768px) {
+  .site-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2.5rem 4rem 1.5rem;
+  }
+}
+
+.site-name {
+  font-size: 2.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  transition: color 0.25s ease;
+}
+.site-name:hover { color: var(--ash); }
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  list-style: none;
+}
+.nav a {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ash);
+  transition: color 0.25s ease;
+}
+.nav a:hover { color: #ffffff; }
+
+/* ============================================================
+   HOMEPAGE GRID
+   ============================================================ */
+.grid-wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 1.5rem 6rem;
+}
+@media (min-width: 768px) {
+  .grid-wrap { padding: 0 4rem 6rem; }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;          /* mobile: 1 column */
+  gap: 1.5rem;
+}
+@media (min-width: 768px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }   /* tablet: 2 */
+}
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }   /* desktop: 3 */
+}
+
+.card { display: block; }
+
+.card-img-wrap {
+  aspect-ratio: 1 / 1;                 /* perfect square */
+  overflow: hidden;
+  background: #171717;
+}
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(15%) brightness(0.9);
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+.card:hover .card-img {
+  transform: scale(1.03);
+  filter: grayscale(0%) brightness(1);
+}
+
+.card-title {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ash);
+  transition: color 0.3s ease, letter-spacing 0.3s ease;
+}
+.card:hover .card-title {
+  color: #ffffff;
+  letter-spacing: 0.28em;
+}
+
+/* ============================================================
+   WRITEUP PAGE
+   ============================================================ */
+.article {
+  max-width: var(--read);
+  margin: 0 auto;
+  padding: 1rem 1.5rem 6rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin: 1rem 0 2rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ash);
+  transition: color 0.25s ease;
+}
+.back-link:hover { color: #ffffff; }
+
+.eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--ash);
+  margin-bottom: 0.75rem;
+}
+
+.article h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Meta row (OS, difficulty, date, target) */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0 2.5rem;
+}
+.meta span {
+  border: 1px solid var(--line);
+  color: var(--ash);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.divider { border: none; border-top: 1px solid var(--line); margin-bottom: 2.5rem; }
+
+/* Body text */
+.article h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  margin: 3rem 0 1rem;
+}
+.article p { color: #d4d4d4; margin: 1rem 0; }
+
+.article ul { color: #d4d4d4; margin: 1rem 0; padding-left: 1.25rem; }
+.article li { margin: 0.25rem 0; }
+
+/* Inline code (single words inside a sentence) */
+code.inline {
+  font-family: 'JetBrains Mono', monospace;
+  background: #171717;
+  color: #f5f5f5;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.85em;
+}
+
+/* Code blocks (terminal output) — clean monospace on dark */
+pre {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid #3a3a3a;
+  padding: 1.1rem 1.25rem;
+  margin: 1.25rem 0;
+  overflow-x: auto;                    /* long lines scroll instead of breaking layout */
+}
+pre code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #d4d4d4;
+  white-space: pre;
+}
+
+/* Callout box (Key findings) */
+.callout {
+  border-left: 2px solid #4d4d4d;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+}
+.callout-title {
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Two-column list (usernames / passwords) */
+.cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 640px) {
+  .cols { grid-template-columns: 1fr 1fr; }
+}
+.cols ul { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; list-style: none; padding: 0; }
+
+/* Result box + tags */
+.result {
+  border: 1px solid var(--line);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+}
+.tags {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ash);
+}
+.tags span { border: 1px solid var(--line); padding: 0.4rem 0.75rem; }
