@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB Crocodile — Writeup</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+
+  <!-- ============ HEADER (matches homepage) ============ -->
+  <header class="site-header">
+    <a href="../index.html" class="site-name">Anacoresis</a>
+    <nav aria-label="Primary">
+      <ul class="nav">
+        <li><a href="../index.html">HTB Writeups</a></li>
+        <li><a href="../about.html">About Me</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ============ ARTICLE ============ -->
+  <main class="article">
+
+    <a href="../index.html" class="back-link">&larr; All writeups</a>
+
+    <div class="eyebrow">HTB Writeup</div>
+    <h1>HTB Machine: Crocodile</h1>
+
+    <div class="meta">
+      <span>OS · Linux</span>
+      <span>Difficulty · Very Easy (Tier 0)</span>
+      <span>July 2026</span>
+      <span>Target · 10.129.1.15</span>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Step 1 -->
+    <h2>Step 1 · Reconnaissance &amp; Scanning</h2>
+    <p>Run an initial <code class="inline">nmap</code> scan to discover open ports and determine the versions of running services:</p>
+    <pre><code>sudo nmap -sV -sC 10.129.1.15</code></pre>
+
+    <div class="callout">
+      <p class="callout-title">Key findings</p>
+      <ul>
+        <li><span style="color:#fff">Port 21 (FTP):</span> Open and active. (Port 21 is the standard FTP port.)</li>
+        <li><span style="color:#fff">Port 80 (HTTP):</span> Open, web server hosting a web application.</li>
+      </ul>
+    </div>
+
+    <!-- Step 2 -->
+    <h2>Step 2 · FTP Exploitation</h2>
+    <p>Attempting a standard CLI login returned a specific restriction message:</p>
+    <pre><code>530 This FTP server is anonymous only.</code></pre>
+    <p>Log in with the <code class="inline">anonymous</code> username and a blank password to bypass the authentication check:</p>
+    <pre><code>ftp 10.129.1.15
+# Username: anonymous
+# Password: &lt;Press Enter&gt;</code></pre>
+
+    <!-- Step 3 -->
+    <h2>Step 3 · Data Exfiltration</h2>
+    <p>Inside the FTP server, two interesting credential files were located. Use the <code class="inline">get</code> command to download them locally:</p>
+    <pre><code>ftp&gt; get allowed.userlist
+ftp&gt; get allowed.userlist.passwd</code></pre>
+    <p>Reading the downloaded files revealed four potential usernames and four potential passwords:</p>
+
+    <div class="cols">
+      <div>
+        <p class="callout-title">Usernames</p>
+        <pre><code>aron
+pwnmeow
+egotisticalsw
+admin</code></pre>
+      </div>
+      <div>
+        <p class="callout-title">Passwords</p>
+        <pre><code>root
+Supersecretpassword1
+@BaASD&amp;9032123sADS
+rKXM59ESxesUFHAd</code></pre>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <h2>Step 4 · Web Directory Brute-Forcing</h2>
+    <p>Perform directory busting with <code class="inline">gobuster</code> on the HTTP service to find hidden paths and login portals:</p>
+    <pre><code>gobuster dir -u http://10.129.1.15 -w /usr/share/wordlists/dirb/common.txt</code></pre>
+    <div class="callout">
+      <p class="callout-title">Key finding</p>
+      <p>Found the <code class="inline">/dashboard</code> directory, which hosts the main administrative login portal.</p>
+    </div>
+
+    <!-- Step 5 -->
+    <h2>Step 5 · Credential Stuffing &amp; Flag Retrieval</h2>
+    <p>Navigate to the login page found via directory busting. Manually test the exfiltrated usernames against the discovered passwords. Testing the <code class="inline">admin</code> user against the password list produced a successful login, granting access to the dashboard where the flag was recovered.</p>
+
+    <div class="result">
+      <p><span style="color:#8a8a8a">Valid Username:</span> <span style="color:#fff">admin</span></p>
+      <p style="margin-top:0.5rem"><span style="color:#8a8a8a">Valid Password:</span> <span style="color:#fff">rKXM59ESxesUFHAd</span></p>
+    </div>
+
+    <!-- Tags -->
+    <div class="tags">
+      <span># HTB</span>
+      <span># Linux</span>
+      <span># FTP</span>
+      <span># Web</span>
+    </div>
+
+  </main>
+
+</body>
+</html>
