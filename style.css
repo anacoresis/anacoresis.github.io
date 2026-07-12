@@ -295,4 +295,23 @@ pre code {
 .writeup-head h1 { margin: 0; }
 .writeup-head .eyebrow { margin-bottom: 0.4rem; }
 
+/* Logo-style card (HTB badges): show whole, no crop, no dim, gentle hover */
+.card-img-wrap.logo {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12%;
+}
+.card-img-wrap.logo .card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;      /* show the whole badge, don't crop */
+  filter: none;             /* full color, never dimmed */
+  transition: opacity 0.3s ease;
+}
+.card:hover .card-img-wrap.logo .card-img {
+  transform: none;          /* no zoom */
+  opacity: 0.8;             /* subtle fade instead */
+}
 
