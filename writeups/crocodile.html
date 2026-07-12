@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB Crocodile — Writeup</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts: Space Grotesk (display) + JetBrains Mono (code) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- highlight.js for automatic syntax coloring of code blocks -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            grotesk: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: { ink: '#000000', paper: '#f5f5f5', ash: '#8a8a8a' },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    .nav-link { transition: color 0.25s ease; }
+    .nav-link:hover { color: #ffffff; }
+    /* Code block chrome */
+    pre { border-radius: 0; }
+    pre code.hljs {
+      background: #0d0d0d;
+      border: 1px solid #1f1f1f;
+      border-left: 3px solid #3a3a3a;
+      font-family: '"JetBrains Mono", monospace';
+      font-size: 0.9rem;
+      line-height: 1.6;
+      padding: 1.1rem 1.25rem;
+    }
+    /* Reading prose spacing */
+    .prose-body p { margin: 1rem 0; line-height: 1.75; }
+    a.inline-link { color: #d4d4d4; text-decoration: underline; text-underline-offset: 3px; }
+    a.inline-link:hover { color: #fff; }
+  </style>
+</head>
+
+<body class="bg-ink text-paper font-grotesk min-h-screen antialiased selection:bg-white selection:text-black">
+
+  <!-- ============ HEADER (consistent with homepage) ============ -->
+  <header class="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pt-10 pb-6">
+    <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+      <a href="index.html" class="text-3xl sm:text-4xl font-bold uppercase tracking-tight leading-none hover:text-ash transition-colors">
+        Your&nbsp;Name
+      </a>
+      <nav aria-label="Primary">
+        <ul class="flex flex-wrap items-center gap-x-8 gap-y-3 text-xs sm:text-sm font-medium uppercase tracking-[0.2em] text-ash">
+          <li><a href="#" class="nav-link">HTB Writeups</a></li>
+          <li><a href="#" class="nav-link">Projects</a></li>
+          <li><a href="#" class="nav-link">STEM</a></li>
+          <li><a href="#" class="nav-link">About Me</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ ARTICLE ============ -->
+  <main class="max-w-3xl mx-auto px-6 sm:px-10 pb-24">
+
+    <!-- Back link -->
+    <a href="index.html" class="text-xs uppercase tracking-[0.2em] text-ash nav-link inline-block mt-4 mb-8">&larr; All writeups</a>
+
+    <!-- Article header -->
+    <div class="text-xs uppercase tracking-[0.3em] text-ash mb-3">HTB Writeup</div>
+    <h1 class="text-4xl sm:text-5xl font-bold uppercase tracking-tight leading-tight">HTB Machine: Crocodile</h1>
+
+    <!-- Meta row -->
+    <div class="flex flex-wrap gap-2 mt-6 mb-10 text-xs uppercase tracking-[0.15em]">
+      <span class="border border-neutral-700 text-ash px-3 py-1.5">OS · Linux</span>
+      <span class="border border-neutral-700 text-ash px-3 py-1.5">Difficulty · Very Easy (Tier 0)</span>
+      <span class="border border-neutral-700 text-ash px-3 py-1.5">July 2026</span>
+      <span class="border border-neutral-700 text-ash px-3 py-1.5">Target · 10.129.1.15</span>
+    </div>
+
+    <hr class="border-neutral-800 mb-10" />
+
+    <!-- Body -->
+    <article class="prose-body text-neutral-300">
+
+      <h2 class="text-2xl font-bold uppercase tracking-wide text-white mt-12 mb-4">Step 1 · Reconnaissance &amp; Scanning</h2>
+      <p>Run an initial <code class="font-mono text-neutral-100 bg-neutral-900 px-1.5 py-0.5 text-sm">nmap</code> scan to discover open ports and determine the versions of running services:</p>
+      <pre><code class="language-bash">sudo nmap -sV -sC 10.129.1.15</code></pre>
+
+      <div class="border-l-2 border-neutral-600 pl-4 my-6">
+        <p class="text-white font-medium uppercase tracking-wide text-sm mb-2">Key findings</p>
+        <ul class="list-disc list-inside space-y-1 text-neutral-300">
+          <li><span class="text-white">Port 21 (FTP):</span> Open and active. <em class="text-ash">(Port 21 is the standard FTP port.)</em></li>
+          <li><span class="text-white">Port 80 (HTTP):</span> Open, web server hosting a web application.</li>
+        </ul>
+      </div>
+
+      <h2 class="text-2xl font-bold uppercase tracking-wide text-white mt-12 mb-4">Step 2 · FTP Exploitation</h2>
+      <p>Attempting a standard CLI login returned a specific restriction message:</p>
+      <pre><code class="language-text">530 This FTP server is anonymous only.</code></pre>
+      <p>Log in with the <code class="font-mono text-neutral-100 bg-neutral-900 px-1.5 py-0.5 text-sm">anonymous</code> username and a blank password to bypass the authentication check:</p>
+      <pre><code class="language-bash">ftp 10.129.1.15
+# Username: anonymous
+# Password: &lt;Press Enter&gt;</code></pre>
+
+      <h2 class="text-2xl font-bold uppercase tracking-wide text-white mt-12 mb-4">Step 3 · Data Exfiltration</h2>
+      <p>Inside the FTP server, two interesting credential files were located. Use the <code class="font-mono text-neutral-100 bg-neutral-900 px-1.5 py-0.5 text-sm">get</code> command to download them locally:</p>
+      <pre><code class="language-text">ftp&gt; get allowed.userlist
+ftp&gt; get allowed.userlist.passwd</code></pre>
+      <p>Reading the downloaded files revealed four potential usernames and four potential passwords:</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 my-6">
+        <div>
+          <p class="text-white font-medium uppercase tracking-wide text-sm mb-2">Usernames</p>
+          <ul class="font-mono text-sm space-y-1 text-neutral-300">
+            <li>aron</li><li>pwnmeow</li><li>egotisticalsw</li><li>admin</li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-white font-medium uppercase tracking-wide text-sm mb-2">Passwords</p>
+          <ul class="font-mono text-sm space-y-1 text-neutral-300">
+            <li>root</li><li>Supersecretpassword1</li><li>@BaASD&amp;9032123sADS</li><li>rKXM59ESxesUFHAd</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 class="text-2xl font-bold uppercase tracking-wide text-white mt-12 mb-4">Step 4 · Web Directory Brute-Forcing</h2>
+      <p>Perform directory busting with <code class="font-mono text-neutral-100 bg-neutral-900 px-1.5 py-0.5 text-sm">gobuster</code> on the HTTP service to find hidden paths and login portals:</p>
+      <pre><code class="language-bash">gobuster dir -u http://10.129.1.15 -w /usr/share/wordlists/dirb/common.txt</code></pre>
+      <div class="border-l-2 border-neutral-600 pl-4 my-6">
+        <p class="text-white font-medium uppercase tracking-wide text-sm mb-2">Key finding</p>
+        <p class="text-neutral-300 m-0">Found the <code class="font-mono text-neutral-100 bg-neutral-900 px-1.5 py-0.5 text-sm">/dashboard</code> directory, which hosts the main administrative login portal.</p>
+      </div>
+
+      <h2 class="text-2xl font-bold uppercase tracking-wide text-white mt-12 mb-4">Step 5 · Credential Stuffing &amp; Flag Retrieval</h2>
+      <p>Navigate to the login page found via directory busting. Manually test the exfiltrated usernames against the discovered passwords. Testing the <code class="font-mono text-neutral-100 bg-neutral-900 px-1.5 py-0.5 text-sm">admin</code> user against the password list produced a successful login, granting access to the dashboard where the flag was recovered.</p>
+
+      <div class="border border-neutral-700 p-5 my-6 font-mono text-sm">
+        <p class="m-0"><span class="text-ash">Valid Username:</span> <span class="text-white">admin</span></p>
+        <p class="m-0 mt-2"><span class="text-ash">Valid Password:</span> <span class="text-white">rKXM59ESxesUFHAd</span></p>
+      </div>
+
+    </article>
+
+    <!-- Tags -->
+    <div class="mt-12 pt-6 border-t border-neutral-800 flex flex-wrap gap-2 text-xs uppercase tracking-[0.15em] text-ash">
+      <span class="border border-neutral-800 px-3 py-1.5"># HTB</span>
+      <span class="border border-neutral-800 px-3 py-1.5"># Linux</span>
+      <span class="border border-neutral-800 px-3 py-1.5"># FTP</span>
+      <span class="border border-neutral-800 px-3 py-1.5"># Web</span>
+    </div>
+
+  </main>
+
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
