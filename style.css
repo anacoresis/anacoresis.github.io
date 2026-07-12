@@ -277,3 +277,14 @@ pre code {
   color: var(--ash);
 }
 .tags span { border: 1px solid var(--line); padding: 0.4rem 0.75rem; }
+
+/* Box image on writeup pages (sits between title and meta) */
+.box-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--line);
+  margin: 1.5rem 0 2rem;
+}
+
+
