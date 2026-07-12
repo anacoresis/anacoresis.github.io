@@ -278,13 +278,22 @@ pre code {
 }
 .tags span { border: 1px solid var(--line); padding: 0.4rem 0.75rem; }
 
-/* Box image on writeup pages (sits between title and meta) */
-.box-image {
-  width: 100%;
-  height: auto;
-  display: block;
-  border: 1px solid var(--line);
-  margin: 1.5rem 0 2rem;
+/* Writeup header: small badge beside the title */
+.writeup-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
+.writeup-head .badge {
+  width: 96px;
+  height: 96px;
+  flex: none;
+  border: 1px solid var(--line);
+  object-fit: cover;
+  display: block;
+}
+.writeup-head h1 { margin: 0; }
+.writeup-head .eyebrow { margin-bottom: 0.4rem; }
 
 
