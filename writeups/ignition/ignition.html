@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB Ignition — Writeup</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+
+<body>
+
+  <!-- ============ HEADER (matches homepage) ============ -->
+  <header class="site-header">
+    <a href="../../index.html" class="site-name">Anacoresis</a>
+    <nav aria-label="Primary">
+      <ul class="nav">
+        <li><a href="../../index.html">HTB Writeups</a></li>
+        <li><a href="../../about.html">About Me</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ============ ARTICLE ============ -->
+  <main class="article">
+
+    <a href="../../index.html" class="back-link">&larr; All writeups</a>
+
+    <div class="writeup-head">
+      <img src="ignition.png" alt="HTB Ignition machine badge" class="badge" />
+      <div>
+        <div class="eyebrow">HTB Writeup</div>
+        <h1>HTB Machine: Ignition</h1>
+      </div>
+    </div>
+
+    <div class="meta">
+      <span>OS · Linux</span>
+      <span>Difficulty · Very Easy (Tier 0)</span>
+      <span>July 2026</span>
+      <span>Target · 10.129.1.27</span>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Step 1 -->
+    <h2>Step 1 · Reconnaissance &amp; Scanning</h2>
+    <p>Run <code class="inline">nmap</code> to determine the version of the service running on port 80:</p>
+    <pre><code>sudo nmap -sV -sC 10.129.1.27</code></pre>
+
+    <div class="callout">
+      <p class="callout-title">Key findings</p>
+      <ul>
+        <li><span style="color:#fff">Target IP:</span> 10.129.1.27</li>
+        <li><span style="color:#fff">Port 80 (HTTP):</span> Open.</li>
+        <li><span style="color:#fff">Web server:</span> nginx 1.14.2.</li>
+      </ul>
+    </div>
+
+    <!-- Step 2 -->
+    <h2>Step 2 · Investigating the Redirect</h2>
+    <p>I initially tried to navigate to the web page at <code class="inline">http://10.129.1.27</code>, but it resolved to <code class="inline">http://ignition.htb/</code> and returned the error: "Hmm. We're having trouble finding that site."</p>
+    <p>The network tab did not display an explicit error code in the request headers. Checking the hint revealed that <code class="inline">curl</code> was the right tool to investigate:</p>
+    <pre><code>curl -v http://10.129.1.27</code></pre>
+    <p>This surfaced the redirection status code we were looking for: <code class="inline">302 Found</code>.</p>
+
+    <!-- Step 3 -->
+    <h2>Step 3 · Virtual Host Routing Fix</h2>
+    <p>To understand why the browser failed to load the page, I researched the issue. An IP address is just a physical location on a network. A single Nginx server at one IP can host dozens of completely different websites simultaneously using virtual hosting.</p>
+    <p>When typing the raw IP into the browser, Nginx sees <code class="inline">Host: 10.129.1.27</code>. Because it does not recognize that IP as a specific website configuration, it fails to route the request. Nginx needs to see a specific domain name (like <code class="inline">Host: ignition.htb</code>) in the HTTP header to route traffic to the Magento application.</p>
+    <p>To fix this, I edited the local hosts file:</p>
+    <pre><code>sudo vim /etc/hosts</code></pre>
+    <p>I added the line <code class="inline">10.129.1.27 ignition.htb</code>, saved, and exited. Navigating to the web application then worked.</p>
+
+    <!-- Step 4 -->
+    <h2>Step 4 · Web Directory Brute-Forcing</h2>
+    <p>Directory busting was performed with <code class="inline">gobuster</code> to find hidden paths:</p>
+    <pre><code>gobuster dir -u http://ignition.htb -w /usr/share/wordlists/dirb/common.txt -t 30</code></pre>
+    <p>The <code class="inline">-t 30</code> flag sets threads, meaning the tool checks 30 words from the wordlist at a time. This yielded a few results, including the <code class="inline">/admin</code> page.</p>
+
+    <!-- Step 5 -->
+    <h2>Step 5 · Admin Login &amp; Flag Retrieval</h2>
+    <p>The platform requires an administrative password. Magento defends against brute forcing — too many incorrect attempts lock the user out for a couple of minutes — so this required manual trial and error.</p>
+    <p>The process involved researching common default administrative passwords. The correct password was entry number 48 on the list: <code class="inline">qwerty123</code>.</p>
+
+    <div class="callout">
+      <p class="callout-title">Note</p>
+      <p>I did not manually guess all 48 passwords; because this is an older machine, I looked up the standard password list reference. This mimics real-world scenarios where known password lists are prioritized based on platform defaults.</p>
+    </div>
+
+    <!-- Tags -->
+    <div class="tags">
+      <span># HTB</span>
+      <span># Linux</span>
+      <span># Web</span>
+      <span># Magento</span>
+    </div>
+
+    <a href="../../index.html" class="back-link" style="margin-top:2.5rem;">&larr; All writeups</a>
+
+  </main>
+
+</body>
+</html>
